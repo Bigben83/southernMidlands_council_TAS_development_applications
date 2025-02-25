@@ -87,7 +87,7 @@ def scrape_job_details(url, db, logger)
 
     # Clean up the proposal for council_reference and description
     council_reference = proposal.split(' ')[0].strip  # Extract the full DA reference, e.g., DA2400094
-    description = proposal.include?("Dwelling") ? "Dwelling" : proposal.split(' ')[1]  # Simplified description
+    description = proposal.split('-')[1].to_s.strip if proposal.include?("-")  # Simplified description
 
     # Remove the "View Application" part from the proposal string
     proposal = council_reference.gsub("View Application", "").strip
