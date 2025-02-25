@@ -66,6 +66,17 @@ def scrape_job_details(url, db, logger)
     proposal = proposal_match ? proposal_match[1].strip : nil
     document_description = pdf_link_match ? "https://www.southernmidlands.tas.gov.au" + pdf_link_match : nil
 
+    # Extract the "Posted" date from the <p class="subdued"> tag
+    date_received_match = job_page.css('p.subdued').text.match(/Posted\s+[A-Za-z]+\s+(\d{1,2}\s+[A-Za-z]+\s+\d{4})/)
+    if date_received_match
+      date_received_str = date_received_match[1]
+      # Convert to Date object and reformat to "YYYY-MM-DD"
+      date_received = Date.parse(date_received_str).strftime('%Y-%m-%d')
+
+      # Calculate the "on_notice_to" date as 14 days after the "date_received"
+      on_notice_to = (Date.parse(date_received) + 14).strftime('%Y-%m-%d')
+    end
+
     # Clean up the proposal for council_reference and description
     council_reference = proposal.split(' ')[0].strip  # Extract the full DA reference, e.g., DA2400094
     description = proposal.include?("Dwelling") ? "Dwelling" : proposal.split(' ').last  # Simplified description (could be further refined)
@@ -80,17 +91,17 @@ def scrape_job_details(url, db, logger)
     logger.info("PDF Link: #{document_description}")
 
     # Step 3: Save data to the database
-    save_to_database(address, council_reference, description, document_description, db, logger)
+    save_to_database(address, council_reference, description, document_description, date_received, on_notice_to, db, logger)
   end
 end
 
-def save_to_database(address, council_reference, description, document_description, db, logger)
+def save_to_database(address, council_reference, description, document_description, date_received, on_notice_to, db, logger)
   # Ensure no duplicate entries
   existing_entry = db.execute("SELECT * FROM southernmidlands WHERE council_reference = ?", council_reference)
 
   if existing_entry.empty?  # Only insert if the entry doesn't already exist
-    db.execute("INSERT INTO southernmidlands (address, council_reference, description, document_description, date_scraped)
-                VALUES (?, ?, ?, ?, ?)", [address, council_reference, description, document_description, Date.today.to_s])
+    db.execute("INSERT INTO southernmidlands (address, council_reference, description, document_description, date_received, on_notice_to, date_scraped)
+                VALUES (?, ?, ?, ?, ?, ?, ?)", [address, council_reference, description, document_description, date_received, on_notice_to, Date.today.to_s])
     logger.info("Data for job with location #{address} saved to database.")
   else
     logger.info("Duplicate entry for job at #{address}. Skipping insertion.")
