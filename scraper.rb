@@ -49,15 +49,15 @@ def scrape_job_details(url, db, logger)
   job_page = Nokogiri::HTML(open(url))
 
   # Extract the "Posted" date from the <p class="subdued"> tag
-  date_received_match = job_page.css('p.subdued').text.match(/Posted\s+[A-Za-z]+\s+(\d{1,2}\s+[A-Za-z]+\s+\d{4})/)
+  date_received_match = job_page.css('p.subdued').text.match(/Posted\s+\w+\s+(\d{1,2}\s+[A-Za-z]+\s+\d{4})/)
   if date_received_match
     date_received_str = date_received_match[1]
     # Convert to Date object and reformat to "YYYY-MM-DD"
     date_received = Date.parse(date_received_str).strftime('%Y-%m-%d')
-
+  
     # Calculate the "on_notice_to" date as 14 days after the "date_received"
     on_notice_to = (Date.parse(date_received) + 14).strftime('%Y-%m-%d')
-
+  
     # Log the date received and on_notice_to
     logger.info("date_received_match: #{date_received_match}")
     logger.info("date_received: #{date_received}")
