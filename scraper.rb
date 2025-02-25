@@ -71,13 +71,13 @@ def scrape_job_details(url, db, logger)
 
     # Remove the "View Application" part from the proposal string
     proposal = council_reference.gsub("View Application", "").strip
-
+  end
+  
     # Log the data
-    logger.info("Location: #{address}")
-    logger.info("Proposal: #{council_reference}")
+    logger.info("Address: #{address}")
+    logger.info("Council Reference: #{council_reference}")
     logger.info("Description: #{description}")
     logger.info("PDF Link: #{document_description}")
-  end
 
   # Extract the "Posted" date from the <p class="subdued"> tag
   date_received_match = job_page.css('p.subdued').text.match(/Posted\s+[A-Za-z]+\s+(\d{1,2}\s+[A-Za-z]+\s+\d{4})/)
