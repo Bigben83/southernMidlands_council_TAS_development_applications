@@ -50,6 +50,7 @@ def scrape_job_details(url, db, logger)
 
   # Extract the "Posted" date from the <p class="subdued"> tag
   date_received_match = job_page.css('p.subdued').text.match(/Posted\s+\w+\s+(\d{1,2}\s+[A-Za-z]+\s+\d{4})/)
+  logger.info("date_received_match: #{date_received_match}")
   if date_received_match
     date_received_str = date_received_match[1]
     # Convert to Date object and reformat to "YYYY-MM-DD"
@@ -59,7 +60,7 @@ def scrape_job_details(url, db, logger)
     on_notice_to = (Date.parse(date_received) + 14).strftime('%Y-%m-%d')
   
     # Log the date received and on_notice_to
-    logger.info("date_received_match: #{date_received_match}")
+    
     logger.info("date_received: #{date_received}")
     logger.info("on_notice_to: #{on_notice_to}")
   else
