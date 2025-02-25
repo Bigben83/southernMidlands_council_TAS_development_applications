@@ -67,11 +67,11 @@ def scrape_job_details(url, db, logger)
     document_description = pdf_link_match ? "https://www.southernmidlands.tas.gov.au" + pdf_link_match : nil
 
     # Clean up the proposal for council_reference and description
-    council_reference = proposal.sub(/^DA/, '').strip  # Remove 'DA' and trim the rest
+    council_reference = proposal.split(' ')[0].strip  # Extract the full DA reference, e.g., DA2400094
     description = proposal.include?("Dwelling") ? "Dwelling" : proposal.split(' ').last  # Simplified description (could be further refined)
 
     # Remove the "View Application" part from the proposal string
-    description = description.gsub("View Application", "").strip
+    proposal = council_reference.gsub("View Application", "").strip
 	  
     # Log the data
     logger.info("Location: #{address}")
