@@ -43,13 +43,13 @@ def scrape_job_details(url, db, logger)
 
     # Extract the details if they exist
     address = location_match ? location_match[1].strip : nil
-    proposal = proposal_match ? proposal_match[1].strip : nil
-    pdf_link = pdf_link_match ? "https://www.southernmidlands.tas.gov.au" + pdf_link_match : nil
+    council_reference = proposal_match ? proposal_match[1].strip : nil
+    document_description = pdf_link_match ? "https://www.southernmidlands.tas.gov.au" + pdf_link_match : nil
 
     # Log the data
     logger.info("Location: #{address}")
-    logger.info("Proposal: #{proposal}")
-    logger.info("PDF Link: #{pdf_link}")
+    logger.info("Proposal: #{council_reference}")
+    logger.info("PDF Link: #{document_description}")
 
     # Step 3: Save data to the database
     save_to_database(address, proposal, pdf_link, db, logger)
