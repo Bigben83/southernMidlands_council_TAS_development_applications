@@ -85,10 +85,8 @@ def scrape_job_details(url, db, logger)
     date_received_str = date_received_match[1]
     # Convert to Date object and reformat to "YYYY-MM-DD"
     date_received = Date.parse(date_received_str).strftime('%Y-%m-%d')
-
     # Calculate the "on_notice_to" date as 14 days after the "date_received"
     on_notice_to = (Date.parse(date_received) + 14).strftime('%Y-%m-%d')
-
     # Log the date received and on_notice_to
     logger.info("date_received: #{date_received}")
     logger.info("on_notice_to: #{on_notice_to}")
@@ -98,9 +96,7 @@ def scrape_job_details(url, db, logger)
 
   # Step 3: Save data to the database
   save_to_database(address, council_reference, description, document_description, date_received, on_notice_to, db, logger)
-	
 end
-
 
 def save_to_database(address, council_reference, description, document_description, date_received, on_notice_to, db, logger)
   # Ensure no duplicate entries
@@ -109,9 +105,9 @@ def save_to_database(address, council_reference, description, document_descripti
   if existing_entry.empty?  # Only insert if the entry doesn't already exist
     db.execute("INSERT INTO southernmidlands (address, council_reference, description, document_description, date_received, on_notice_to, date_scraped)
                 VALUES (?, ?, ?, ?, ?, ?, ?)", [address, council_reference, description, document_description, date_received, on_notice_to, Date.today.to_s])
-    logger.info("Data for job with location #{address} saved to database.")
+    logger.info("Data for job with Reference #{council_reference} saved to database.")
   else
-    logger.info("Duplicate entry for job at #{address}. Skipping insertion.")
+    logger.info("Duplicate entry for job Reference #{council_reference}. Skipping insertion.")
   end
 end
 
