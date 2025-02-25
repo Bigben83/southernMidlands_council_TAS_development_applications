@@ -45,7 +45,6 @@ logger.info("Create table")
 	document_description = ''
 	date_scraped = Date.today.to_s
 
-
 	logger.info("Start Extraction of Data")
 
 # Define methods first
@@ -76,9 +75,6 @@ def scrape_job_details(url, db, logger)
     # Log the data
     logger.info("Location: #{address}")
     logger.info("Proposal: #{council_reference}")
-	  logger.info("date_received_match: #{date_received_match}")
-	  logger.info("date_received: #{date_received}")
-	  logger.info("on_notice_to: #{on_notice_to}")
     logger.info("Description: #{description}")
     logger.info("PDF Link: #{document_description}")
   end
