@@ -32,7 +32,7 @@ db.execute <<-SQL
 SQL
 
 # Define methods first
-def scrape_job_details(url, logger)
+def scrape_job_details(url, db, logger)
   job_page = Nokogiri::HTML(open(url))
 
   # Extract the location and proposal information from the <p> tag
@@ -52,11 +52,11 @@ def scrape_job_details(url, logger)
     logger.info("PDF Link: #{pdf_link}")
 
     # Step 3: Save data to the database
-    save_to_database(address, proposal, pdf_link, logger)
+    save_to_database(address, proposal, pdf_link, db, logger)
   end
 end
 
-def save_to_database(address, proposal, pdf_link, logger)
+def save_to_database(address, proposal, pdf_link, db, logger)
   # Ensure no duplicate entries
   existing_entry = db.execute("SELECT * FROM southernmidlands WHERE address = ? AND proposal = ?", address, proposal)
 
@@ -93,5 +93,5 @@ main_page.css('article .content h2 a').each do |link|
   logger.info("Found job link: #{job_url}")
 
   # Now you would call the scrape_job_details method to extract the job data
-  scrape_job_details(job_url, logger)
+  scrape_job_details(job_url, db, logger)
 end
