@@ -22,7 +22,7 @@ rescue => e
 end
 
 # Step 2: Parse the page content using Nokogiri
-doc = Nokogiri::HTML(page_html)
+main_page = Nokogiri::HTML(page_html)
 
 # Step 3: Initialize the SQLite database
 db = SQLite3::Database.new "data.sqlite"
