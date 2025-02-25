@@ -82,12 +82,16 @@ def scrape_job_details(url, db, logger)
 
     # Extract the details if they exist
     address = location_match ? location_match[1].strip : 'Address not found'
-    proposal = proposal_match ? proposal_match[1].strip : 'Proposal not found'
     document_description = pdf_link_match ? "https://www.southernmidlands.tas.gov.au" + pdf_link_match : 'No PDF link'
 
     # Clean up the proposal for council_reference and description
     council_reference = proposal.split(' ')[0].strip  # Extract the full DA reference, e.g., DA2400094
-    description = proposal.split('-')[1].to_s.strip if proposal.include?("-")  # Simplified description
+    
+    # Extract everything after the last digit (which should be the description)
+    proposal_match = p.text.match(/Proposal:\s*(.*)/)
+    proposal = proposal_match ? proposal_match[1].strip : 'Proposal not found'
+    description_match = proposal.match(/(\d+)\s*(.*)/)
+    description = description_match ? description_match[2].strip : 'Description not found'
 
     # Remove the "View Application" part from the proposal string
     proposal = council_reference.gsub("View Application", "").strip
@@ -96,6 +100,7 @@ def scrape_job_details(url, db, logger)
     logger.info("Address: #{address}")
     logger.info("Council Reference: #{council_reference}")
     logger.info("Description: #{description}")
+    logger.info("Description: #{proposal}")
     logger.info("PDF Link: #{document_description}")
   end
   
