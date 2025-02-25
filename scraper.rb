@@ -8,23 +8,7 @@ require 'cgi'
 # Set up a logger to log the scraped data
 logger = Logger.new(STDOUT)
 
-# URL of the Glenorchy City Council planning applications page
-url = "https://www.southernmidlands.tas.gov.au/advertised-development-applications/"
-
-# Step 1: Fetch the page content
-begin
-  logger.info("Fetching page content from: #{url}")
-  page_html = open(url).read
-  logger.info("Successfully fetched page content.")
-rescue => e
-  logger.error("Failed to fetch page content: #{e}")
-  exit
-end
-
-# Step 2: Parse the page content using Nokogiri
-main_page = Nokogiri::HTML(page_html)
-
-# Step 3: Initialize the SQLite database
+# Step 1: Initialize the SQLite database
 db = SQLite3::Database.new "data.sqlite"
 
 logger.info("Create table")
@@ -47,32 +31,7 @@ db.execute <<-SQL
   );
 SQL
 
-# Define variables for storing extracted data for each entry
-address = ''  
-description = ''
-on_notice_to = ''
-title_reference = ''
-date_received = ''
-council_reference = ''
-applicant = ''
-owner = ''
-stage_description = ''
-stage_status = ''
-document_description = ''
-date_scraped = Date.today.to_s
-
-
-logger.info("Start Extraction of Data")
-
-# Find all <a> tags inside the <article> tags and get their hrefs
-main_page.css('article .content h2 a').each do |link|
-  job_url = "https://www.southernmidlands.tas.gov.au" + link['href']  # Complete URL for the job
-  logger.info("Found job link: #{job_url}")
-
-  # Now you would call a method to scrape the individual job page
-  scrape_job_details(job_url)
-end
-
+# Define methods first
 def scrape_job_details(url)
   job_page = Nokogiri::HTML(open(url))
 
@@ -93,8 +52,48 @@ def scrape_job_details(url)
     logger.info("PDF Link: #{pdf_link}")
 
     # Step 3: Save data to the database
-    save_to_database(location, proposal, pdf_link)
+    save_to_database(address, proposal, pdf_link)
   end
+end
+
+def save_to_database(address, proposal, pdf_link)
+  # Ensure no duplicate entries
+  existing_entry = db.execute("SELECT * FROM southernmidlands WHERE address = ? AND proposal = ?", address, proposal)
+
+  if existing_entry.empty?  # Only insert if the entry doesn't already exist
+    db.execute("INSERT INTO southernmidlands (address, proposal, pdf_link, date_scraped)
+                VALUES (?, ?, ?, ?)", [address, proposal, pdf_link, Date.today.to_s])
+    logger.info("Data for job with location #{address} saved to database.")
+  else
+    logger.info("Duplicate entry for job at #{address}. Skipping insertion.")
+  end
+end
+
+# URL of the Southern Midlands Council planning applications page
+url = "https://www.southernmidlands.tas.gov.au/advertised-development-applications/"
+
+# Step 2: Fetch the page content
+begin
+  logger.info("Fetching page content from: #{url}")
+  page_html = open(url).read
+  logger.info("Successfully fetched page content.")
+rescue => e
+  logger.error("Failed to fetch page content: #{e}")
+  exit
+end
+
+# Step 3: Parse the page content using Nokogiri
+main_page = Nokogiri::HTML(page_html)
+
+logger.info("Start Extraction of Data")
+
+# Find all <a> tags inside the <article> tags and get their hrefs
+main_page.css('article .content h2 a').each do |link|
+  job_url = "https://www.southernmidlands.tas.gov.au" + link['href']  # Complete URL for the job
+  logger.info("Found job link: #{job_url}")
+
+  # Now you would call the scrape_job_details method to extract the job data
+  scrape_job_details(job_url)
 end
 
 def save_to_database(location, proposal, pdf_link)
