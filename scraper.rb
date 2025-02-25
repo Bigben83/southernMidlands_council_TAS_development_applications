@@ -51,7 +51,7 @@ logger.info("Create table")
 def scrape_job_details(url, db, logger)
   job_page = Nokogiri::HTML(open(url))
 
-  # Extract the location and proposal information from the <p> tag
+  # Extract the location and proposal information from the <p> tags
   job_page.css('p').each do |p|
     # Only process <p> tags that start with "Location:"
     next unless p.text.start_with?("Location:")
@@ -61,17 +61,17 @@ def scrape_job_details(url, db, logger)
     pdf_link_match = p.at('a.pdf')['href'] if p.at('a.pdf')
 
     # Extract the details if they exist
-    address = location_match ? location_match[1].strip : nil
-    proposal = proposal_match ? proposal_match[1].strip : nil
-    document_description = pdf_link_match ? "https://www.southernmidlands.tas.gov.au" + pdf_link_match : nil
+    address = location_match ? location_match[1].strip : 'Address not found'
+    proposal = proposal_match ? proposal_match[1].strip : 'Proposal not found'
+    document_description = pdf_link_match ? "https://www.southernmidlands.tas.gov.au" + pdf_link_match : 'No PDF link'
 
     # Clean up the proposal for council_reference and description
     council_reference = proposal.split(' ')[0].strip  # Extract the full DA reference, e.g., DA2400094
-    description = proposal.include?("Dwelling") ? "Dwelling" : proposal.split(' ')[1]  # Simplified description (could be further refined)
+    description = proposal.include?("Dwelling") ? "Dwelling" : proposal.split(' ')[1]  # Simplified description
 
     # Remove the "View Application" part from the proposal string
     proposal = council_reference.gsub("View Application", "").strip
-	  
+
     # Log the data
     logger.info("Location: #{address}")
     logger.info("Proposal: #{council_reference}")
@@ -85,8 +85,10 @@ def scrape_job_details(url, db, logger)
     date_received_str = date_received_match[1]
     # Convert to Date object and reformat to "YYYY-MM-DD"
     date_received = Date.parse(date_received_str).strftime('%Y-%m-%d')
+
     # Calculate the "on_notice_to" date as 14 days after the "date_received"
     on_notice_to = (Date.parse(date_received) + 14).strftime('%Y-%m-%d')
+
     # Log the date received and on_notice_to
     logger.info("date_received: #{date_received}")
     logger.info("on_notice_to: #{on_notice_to}")
