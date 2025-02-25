@@ -68,6 +68,7 @@ def scrape_job_details(url, db, logger)
 
     # Extract the "Posted" date from the <p class="subdued"> tag
     date_received_match = job_page.css('p.subdued').text.match(/Posted\s+[A-Za-z]+\s+(\d{1,2}\s+[A-Za-z]+\s+\d{4})/)
+    
     if date_received_match
       date_received_str = date_received_match[1]
       # Convert to Date object and reformat to "YYYY-MM-DD"
@@ -75,11 +76,13 @@ def scrape_job_details(url, db, logger)
 
       # Calculate the "on_notice_to" date as 14 days after the "date_received"
       on_notice_to = (Date.parse(date_received) + 14).strftime('%Y-%m-%d')
+    else
+      logger.error("No date found for #{address}")
     end
 
     # Clean up the proposal for council_reference and description
     council_reference = proposal.split(' ')[0].strip  # Extract the full DA reference, e.g., DA2400094
-    description = proposal.include?("Dwelling") ? "Dwelling" : proposal.split(' ').last  # Simplified description (could be further refined)
+    description = proposal.include?("Dwelling") ? "Dwelling" : proposal.split(' ')[1]  # Simplified description (could be further refined)
 
     # Remove the "View Application" part from the proposal string
     proposal = council_reference.gsub("View Application", "").strip
