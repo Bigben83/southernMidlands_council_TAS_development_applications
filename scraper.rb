@@ -31,24 +31,21 @@ db.execute <<-SQL
   );
 SQL
 
-# Define variables for storing extracted data for each entry
-address = ''  
-description = ''
-on_notice_to = ''
-title_reference = ''
-date_received = ''
-council_reference = ''
-applicant = ''
-owner = ''
-stage_description = ''
-stage_status = ''
-document_description = ''
-date_scraped = Date.today.to_s
-
-logger.info("Start Extraction of Data")
-
 # Define methods first
 def scrape_job_details(url, db, logger)
+  # Initialize variables within the method to ensure they are passed correctly
+  address = ''  
+  description = ''
+  on_notice_to = ''
+  title_reference = ''
+  date_received = ''
+  council_reference = ''
+  applicant = ''
+  owner = ''
+  stage_description = ''
+  stage_status = ''
+  document_description = ''
+  
   job_page = Nokogiri::HTML(open(url))
 
   # Extract the "Posted" date from the <p class="subdued"> tag
@@ -68,7 +65,7 @@ def scrape_job_details(url, db, logger)
   else
     logger.error("No date found for job.")
   end
-  
+
   # Extract the location and proposal information from the <p> tags
   job_page.css('p').each do |p|
     # Only process <p> tags that start with "Location:"
