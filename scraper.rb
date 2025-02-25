@@ -94,7 +94,7 @@ def scrape_job_details(url, db, logger)
     description = description_match ? description_match[2].strip : 'Description not found'
 
     # Remove the "View Application" part from the proposal string
-    proposal = council_reference.gsub("View Application", "").strip
+    description = description.gsub("View Application", "").strip
 
     # Log the data
     logger.info("Address: #{address}")
