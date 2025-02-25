@@ -79,7 +79,6 @@ def scrape_job_details(url, db, logger)
     location_match = p.text.match(/Location:\s*(.*?)(?=\s*Proposal)/)
     proposal_match = p.text.match(/Proposal:\s*(.*)/)
     proposal = proposal_match ? proposal_match[1].strip : 'Proposal not found'
-    proposal = proposal.gsub(/^.*\d+\s*/, '')
     
     pdf_link_match = p.at('a.pdf')['href'] if p.at('a.pdf')
 
@@ -96,6 +95,7 @@ def scrape_job_details(url, db, logger)
 
     # Remove the "View Application" part from the proposal string
     description = description.gsub("View Application", "").strip
+    description = description..gsub(/^.*\d+\s*/, '')
 
     # Log the data
     logger.info("Address: #{address}")
