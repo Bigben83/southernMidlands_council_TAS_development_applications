@@ -73,7 +73,7 @@ def scrape_job_details(url, db, logger)
   end
 end
 
-def save_to_database(address, proposal, pdf_link, db, logger)
+def save_to_database(address, council_reference, document_description, db, logger)
   # Ensure no duplicate entries
   existing_entry = db.execute("SELECT * FROM southernmidlands WHERE address = ? AND council_reference = ?", address, council_reference)
 
