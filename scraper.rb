@@ -12,24 +12,41 @@ logger = Logger.new(STDOUT)
 db = SQLite3::Database.new "data.sqlite"
 
 logger.info("Create table")
-# Create table
-db.execute <<-SQL
-  CREATE TABLE IF NOT EXISTS southernmidlands (
-    id INTEGER PRIMARY KEY,
-    description TEXT,
-    date_scraped TEXT,
-    date_received TEXT,
-    on_notice_to TEXT,
-    address TEXT,
-    council_reference TEXT,
-    applicant TEXT,
-    owner TEXT,
-    stage_description TEXT,
-    stage_status TEXT,
-    document_description TEXT,
-    title_reference TEXT
-  );
-SQL
+	# Create table
+	db.execute <<-SQL
+	  CREATE TABLE IF NOT EXISTS southernmidlands (
+		id INTEGER PRIMARY KEY,
+		description TEXT,
+		date_scraped TEXT,
+		date_received TEXT,
+		on_notice_to TEXT,
+		address TEXT,
+		council_reference TEXT,
+		applicant TEXT,
+		owner TEXT,
+		stage_description TEXT,
+		stage_status TEXT,
+		document_description TEXT,
+		title_reference TEXT
+	  );
+	SQL
+
+	# Define variables for storing extracted data for each entry
+	address = ''  
+	description = ''
+	on_notice_to = ''
+	title_reference = ''
+	date_received = ''
+	council_reference = ''
+	applicant = ''
+	owner = ''
+	stage_description = ''
+	stage_status = ''
+	document_description = ''
+	date_scraped = Date.today.to_s
+
+
+	logger.info("Start Extraction of Data")
 
 # Define methods first
 def scrape_job_details(url, db, logger)
@@ -52,17 +69,17 @@ def scrape_job_details(url, db, logger)
     logger.info("PDF Link: #{document_description}")
 
     # Step 3: Save data to the database
-    save_to_database(address, proposal, pdf_link, db, logger)
+    save_to_database(address, council_reference, document_description, date_scraped, db, logger)
   end
 end
 
-def save_to_database(address, proposal, pdf_link, db, logger)
+def save_to_database(address, proposal, pdf_link, date_scraped, db, logger)
   # Ensure no duplicate entries
   existing_entry = db.execute("SELECT * FROM southernmidlands WHERE address = ? AND proposal = ?", address, proposal)
 
   if existing_entry.empty?  # Only insert if the entry doesn't already exist
-    db.execute("INSERT INTO southernmidlands (address, proposal, pdf_link, date_scraped)
-                VALUES (?, ?, ?, ?)", [address, proposal, pdf_link, Date.today.to_s])
+    db.execute("INSERT INTO southernmidlands (address, council_reference, document_description, date_scraped)
+                VALUES (?, ?, ?, ?)", [address, council_reference, document_description, date_scraped])
     logger.info("Data for job with location #{address} saved to database.")
   else
     logger.info("Duplicate entry for job at #{address}. Skipping insertion.")
