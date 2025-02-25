@@ -32,7 +32,7 @@ db.execute <<-SQL
 SQL
 
 # Define methods first
-def scrape_job_details(url)
+def scrape_job_details(url, logger)
   job_page = Nokogiri::HTML(open(url))
 
   # Extract the location and proposal information from the <p> tag
@@ -52,11 +52,11 @@ def scrape_job_details(url)
     logger.info("PDF Link: #{pdf_link}")
 
     # Step 3: Save data to the database
-    save_to_database(address, proposal, pdf_link)
+    save_to_database(address, proposal, pdf_link, logger)
   end
 end
 
-def save_to_database(address, proposal, pdf_link)
+def save_to_database(address, proposal, pdf_link, logger)
   # Ensure no duplicate entries
   existing_entry = db.execute("SELECT * FROM southernmidlands WHERE address = ? AND proposal = ?", address, proposal)
 
@@ -93,18 +93,5 @@ main_page.css('article .content h2 a').each do |link|
   logger.info("Found job link: #{job_url}")
 
   # Now you would call the scrape_job_details method to extract the job data
-  scrape_job_details(job_url)
-end
-
-def save_to_database(location, proposal, pdf_link)
-  # Ensure no duplicate entries
-  existing_entry = db.execute("SELECT * FROM southernmidlands WHERE address = ? AND proposal = ?", address, proposal)
-
-  if existing_entry.empty?  # Only insert if the entry doesn't already exist
-    db.execute("INSERT INTO southernmidlands (address, proposal, pdf_link, date_scraped)
-                VALUES (?, ?, ?, ?)", [address, proposal, pdf_link, date_scraped])
-    logger.info("Data for job with location #{location} saved to database.")
-  else
-    logger.info("Duplicate entry for job at #{location}. Skipping insertion.")
-  end
+  scrape_job_details(job_url, logger)
 end
