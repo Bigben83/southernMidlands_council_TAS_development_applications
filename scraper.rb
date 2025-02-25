@@ -54,6 +54,9 @@ def scrape_job_details(url, db, logger)
 
   # Extract the location and proposal information from the <p> tag
   job_page.css('p').each do |p|
+    # Only process <p> tags that start with "Location:"
+    next unless p.text.start_with?("Location:")
+
     location_match = p.text.match(/Location:\s*(.*?)(?=\s*Proposal)/)
     proposal_match = p.text.match(/Proposal:\s*(.*)/)
     pdf_link_match = p.at('a.pdf')['href'] if p.at('a.pdf')
@@ -68,11 +71,12 @@ def scrape_job_details(url, db, logger)
     description = proposal.include?("Dwelling") ? "Dwelling" : proposal.split(' ').last  # Simplified description (could be further refined)
 
     # Remove the "View Application" part from the proposal string
-    proposal = proposal.gsub("View Application", "").strip
-
+    description = description.gsub("View Application", "").strip
+	  
     # Log the data
     logger.info("Location: #{address}")
     logger.info("Proposal: #{council_reference}")
+    logger.info("Description: #{description}")
     logger.info("PDF Link: #{document_description}")
 
     # Step 3: Save data to the database
