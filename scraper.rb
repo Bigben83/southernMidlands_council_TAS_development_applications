@@ -60,8 +60,15 @@ def scrape_job_details(url, db, logger)
 
     # Extract the details if they exist
     address = location_match ? location_match[1].strip : nil
-    council_reference = proposal_match ? proposal_match[1].strip : nil
+    proposal = proposal_match ? proposal_match[1].strip : nil
     document_description = pdf_link_match ? "https://www.southernmidlands.tas.gov.au" + pdf_link_match : nil
+
+    # Clean up the proposal for council_reference and description
+    council_reference = proposal.sub(/^DA/, '').strip  # Remove 'DA' and trim the rest
+    description = proposal.include?("Dwelling") ? "Dwelling" : proposal.split(' ').last  # Simplified description (could be further refined)
+
+    # Remove the "View Application" part from the proposal string
+    proposal = proposal.gsub("View Application", "").strip
 
     # Log the data
     logger.info("Location: #{address}")
