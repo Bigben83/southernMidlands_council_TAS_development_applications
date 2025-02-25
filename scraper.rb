@@ -94,12 +94,12 @@ def scrape_job_details(url, db, logger)
     description = description_match ? description_match[2].strip : 'Description not found'
 
     # Remove the "View Application" part from the proposal string
-    description = description.gsub("View Application", "").strip
     description = if proposal.include?("-")
        proposal.split(" - ").last.strip  # Take everything after the last hyphen
     else
        proposal.split(' ').last.strip  # If no hyphen, just take the last word
     end
+    description = description.gsub("View Application", "").strip
 
     # Log the data
     logger.info("Address: #{address}")
