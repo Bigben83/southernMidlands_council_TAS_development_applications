@@ -80,17 +80,17 @@ def scrape_job_details(url, db, logger)
     logger.info("PDF Link: #{document_description}")
 
     # Step 3: Save data to the database
-    save_to_database(address, council_reference, document_description, db, logger)
+    save_to_database(address, council_reference, description, document_description, db, logger)
   end
 end
 
-def save_to_database(address, council_reference, document_description, db, logger)
+def save_to_database(address, council_reference, description, document_description, db, logger)
   # Ensure no duplicate entries
-  existing_entry = db.execute("SELECT * FROM southernmidlands WHERE address = ? AND council_reference = ?", address, council_reference)
+  existing_entry = db.execute("SELECT * FROM southernmidlands council_reference = ?", council_reference)
 
   if existing_entry.empty?  # Only insert if the entry doesn't already exist
-    db.execute("INSERT INTO southernmidlands (address, council_reference, document_description, date_scraped)
-                VALUES (?, ?, ?, ?)", [address, council_reference, document_description, Date.today.to_s])
+    db.execute("INSERT INTO southernmidlands (address, council_reference, description, document_description, date_scraped)
+                VALUES (?, ?, ?, ?, ?)", [address, council_reference, description, document_description, Date.today.to_s])
     logger.info("Data for job with location #{address} saved to database.")
   else
     logger.info("Duplicate entry for job at #{address}. Skipping insertion.")
