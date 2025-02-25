@@ -75,7 +75,7 @@ end
 
 def save_to_database(address, proposal, pdf_link, db, logger)
   # Ensure no duplicate entries
-  existing_entry = db.execute("SELECT * FROM southernmidlands WHERE address = ? AND proposal = ?", address, proposal)
+  existing_entry = db.execute("SELECT * FROM southernmidlands WHERE address = ? AND council_reference = ?", address, council_reference)
 
   if existing_entry.empty?  # Only insert if the entry doesn't already exist
     db.execute("INSERT INTO southernmidlands (address, council_reference, document_description, date_scraped)
