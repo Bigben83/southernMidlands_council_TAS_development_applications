@@ -62,6 +62,7 @@ def scrape_job_details(url, db, logger)
     on_notice_to = (Date.parse(date_received) + 14).strftime('%Y-%m-%d')
 
     # Log the date received and on_notice_to
+    logger.info("date_received_match: #{date_received_match}")
     logger.info("date_received: #{date_received}")
     logger.info("on_notice_to: #{on_notice_to}")
   else
