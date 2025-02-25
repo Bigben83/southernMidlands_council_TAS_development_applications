@@ -95,7 +95,7 @@ def scrape_job_details(url, db, logger)
 
     # Remove the "View Application" part from the proposal string
     description = description.gsub("View Application", "").strip
-    description = description..gsub(/^.*\d+\s*/, '')
+    description = description.gsub(/^.*\d+\s*/, '')
 
     # Log the data
     logger.info("Address: #{address}")
