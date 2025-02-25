@@ -78,6 +78,8 @@ def scrape_job_details(url, db, logger)
 
     location_match = p.text.match(/Location:\s*(.*?)(?=\s*Proposal)/)
     proposal_match = p.text.match(/Proposal:\s*(.*)/)
+    proposal = proposal_match ? proposal_match[1].strip : 'Proposal not found'
+    
     pdf_link_match = p.at('a.pdf')['href'] if p.at('a.pdf')
 
     # Extract the details if they exist
@@ -88,8 +90,6 @@ def scrape_job_details(url, db, logger)
     council_reference = proposal.split(' ')[0].strip  # Extract the full DA reference, e.g., DA2400094
     
     # Extract everything after the last digit (which should be the description)
-    proposal_match = p.text.match(/Proposal:\s*(.*)/)
-    proposal = proposal_match ? proposal_match[1].strip : 'Proposal not found'
     description_match = proposal.match(/(\d+)\s*(.*)/)
     description = description_match ? description_match[2].strip : 'Description not found'
 
